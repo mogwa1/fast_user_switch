@@ -143,13 +143,13 @@ void SessionWidget::slotSwitchSession(int vt)
 {
   emit switching();
 
+  // Figure out screensaver's 'lock' option value
+  KSharedConfigPtr config = KSharedConfig::openConfig("kscreensaverrc");
+  KConfigGroup screensaverGroup = config->group("ScreenSaver");
+  bool lockToggled = screensaverGroup.readEntry("Lock", false);
+
   KDisplayManager manager;
   if (vt == SessionWidget::OPEN_LOGIN) {
-    // Figure out screensaver's 'lock' option value
-    KSharedConfigPtr config = KSharedConfig::openConfig("kscreensaverrc");
-    KConfigGroup screensaverGroup = config->group("ScreenSaver");
-    bool lockToggled = screensaverGroup.readEntry("Lock", false);
-
     // lock screen and start new session
     QDBusInterface screensaver("org.freedesktop.ScreenSaver",
                                "/ScreenSaver", "org.freedesktop.ScreenSaver");
@@ -170,5 +170,8 @@ void SessionWidget::slotSwitchSession(int vt)
                                  KWorkSpace::ShutdownTypeDefault,
                                  KWorkSpace::ShutdownModeDefault);
   } else
-    manager.lockSwitchVT(vt);
+    if (lockToggled)
+      manager.lockSwitchVT(vt);
+    else
+      manager.switchVT(vt);
 }
