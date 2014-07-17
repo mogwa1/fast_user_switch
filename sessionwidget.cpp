@@ -150,13 +150,11 @@ void SessionWidget::slotSwitchSession(int vt)
 
   KDisplayManager manager;
   if (vt == SessionWidget::OPEN_LOGIN) {
-    // lock screen and start new session
+    // lock screen if needed and start new session
     QDBusInterface screensaver("org.freedesktop.ScreenSaver",
                                "/ScreenSaver", "org.freedesktop.ScreenSaver");
     if (lockToggled)
       screensaver.call( "Lock" );
-    else
-      screensaver.call( "SetActive", true );
 
     manager.startReserve();
   } else if (vt == SessionWidget::LOCK_SCREEN) {
